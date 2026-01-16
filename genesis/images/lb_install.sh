@@ -20,7 +20,7 @@ set -eu
 set -x
 set -o pipefail
 
-SDK_MIN_VER=1.1.0
+SDK_MIN_VER=1.2.0
 
 
 # Install packages
