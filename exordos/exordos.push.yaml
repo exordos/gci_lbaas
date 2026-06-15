@@ -1,0 +1,4 @@
+push:
+  local:
+    driver: fs
+    path: /var/lib/exordos-pools/http
