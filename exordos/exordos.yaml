@@ -29,9 +29,9 @@ build:
   # List of elements in the project
   elements:
     - images:
-      - name: genesis-lbaas
-        format: gz
-        profile: genesis_base
+      - name: exordos-lbaas
+        format: GEN_IMG_FORMAT=zst
+        profile: exordos_base
         script: images/lb_install.sh
 
         override:

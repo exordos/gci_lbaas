@@ -20,23 +20,24 @@ set -eu
 set -x
 set -o pipefail
 
-SDK_MIN_VER=1.2.0
+SDK_MIN_VER=3.0.5
 
 
 # Install packages
 sudo apt update
 sudo apt dist-upgrade -y
 sudo apt install -y \
+    crudini \
     nginx-full
 
 sudo systemctl enable nginx
 
 sudo mkdir -p /etc/nginx/ssl
 sudo chown www-data:www-data /etc/nginx/ssl
-sudo mkdir -p /etc/nginx/genesis/
+sudo mkdir -p /etc/nginx/exordos/
 
 # Cert to restrict default_server
-sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -subj "/C=PE/ST=Genesis/L=Genesis/O=Genesis core dummy cert. /OU=IT Department/CN=genesis.core" -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
+sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -subj "/C=PE/ST=Exordos/L=Exordos/O=Exordos core dummy cert. /OU=IT Department/CN=exordos.core" -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
 
 # Block any connections not explicitly set
 cat <<EOF | sudo tee /etc/nginx/sites-enabled/default
@@ -56,11 +57,13 @@ server {
 EOF
 
 cat <<EOF | sudo tee -a /etc/nginx/nginx.conf
-include /etc/nginx/genesis/*.conf;
+include /etc/nginx/exordos/*.conf;
 EOF
 
 # enable driver
-sudo sed -i '/caps_drivers/ s/$/,LBCapabilityDriver/' /etc/genesis_universal_agent/genesis_universal_agent.conf
+UA_CONF=/etc/exordos_universal_agent/exordos_universal_agent.conf
+DRIVERS="$(crudini --get "$UA_CONF" universal_agent caps_drivers)"
+crudini --set "$UA_CONF" universal_agent caps_drivers "${DRIVERS},LBCapabilityDriver"
 
 # Use fresh sdk
 /opt/universal_agent/.venv/bin/pip install --upgrade "gcl_sdk>=${SDK_MIN_VER}"
